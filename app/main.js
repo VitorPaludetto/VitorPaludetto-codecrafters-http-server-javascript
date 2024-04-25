@@ -39,7 +39,7 @@ const server = net.createServer((socket) => {
     else if (path.startsWith("/user-agent")) {
       const userAgentRegex = /(User-Agent: )(.*)/
       const userAgent = input.match(userAgentRegex)[2]
-      socket.write(`HTTP/1.1 200 OK\r\nContent-Type: plain/text\r\nContent-Length: ${userAgent.length}\r\n\r\n${userAgent}\r\n`)
+      socket.write(`HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Length: ${userAgent.length}\r\n\r\n${userAgent}\r\n`)
     }
     else {
       socket.write("HTTP/1.1 404 Not Found\r\n\r\n");
