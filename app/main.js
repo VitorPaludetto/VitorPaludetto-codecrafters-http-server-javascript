@@ -62,9 +62,9 @@ const server = net.createServer({keepAlive: true}, (socket) => {
         socket.write(`HTTP/1.1 200 OK\r\nContent-Type: application/octet-stream\r\nContent-Length: ${fileContent.length}\r\n\r\n${fileContent}\r\n`)
       } catch (err) {
         console.log(err);
-        socket.write("HTTP/1.1 404 Not Found\r\n\r\n");
+        socket.write("HTTP/1.1 404 Not Found\r\nContent-Type: application/octet-stream\r\nContent-Length: 0\r\n");
       }
-      }
+    }
     else {
       socket.write("HTTP/1.1 404 Not Found\r\n\r\n");
     }
