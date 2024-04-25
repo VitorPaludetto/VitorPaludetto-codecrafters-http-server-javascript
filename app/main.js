@@ -52,7 +52,7 @@ const server = net.createServer({keepAlive: true}, (socket) => {
       const userAgent = input.match(userAgentRegex)[2]
       socket.write(`HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Length: ${userAgent.length}\r\n\r\n${userAgent}\r\n`)
     }
-    else if (path.startsWith("/files")) {
+    else if (firstLine.startsWith("GET /files")) {
       const matchFileNameRegex = /(\/files\/)(.*)/
       const fileName = path.match(matchFileNameRegex)[2];
       // Check if the file exists in directory, read it and write its
@@ -60,6 +60,18 @@ const server = net.createServer({keepAlive: true}, (socket) => {
       try {
         const fileContent = fs.readFileSync(`${directory}/${fileName}`, "utf-8");
         socket.write(`HTTP/1.1 200 OK\r\nContent-Type: application/octet-stream\r\nContent-Length: ${fileContent.length}\r\n\r\n${fileContent}\r\n`)
+      } catch (err) {
+        console.log(err);
+        socket.write("HTTP/1.1 404 Not Found\r\nContent-Type: application/octet-stream\r\nContent-Length: 0\r\n\r\n");
+      }
+    }
+    else if (firstLine.startsWith("POST /files")) {
+      const matchFileNameRegex = /(\/files\/)(.*)/
+      const fileName = path.match(matchFileNameRegex)[2];
+      const fileContent = data.toString("utf-8").split("\r\n\r\n")[1];
+      try {
+        fs.writeFileSync(`${directory}/${fileName}`, fileContent);
+        socket.write("HTTP/1.1 201 Created\r\n\r\n");
       } catch (err) {
         console.log(err);
         socket.write("HTTP/1.1 404 Not Found\r\nContent-Type: application/octet-stream\r\nContent-Length: 0\r\n\r\n");
