@@ -1,9 +1,8 @@
 const net = require("net");
 
-const server = net.createServer((socket) => {
+const server = net.createServer({keepAlive: true}, (socket) => {
   socket.on("close", () => {
     socket.end();
-    server.close();
   });
 
   // Extract the Path from the HTTP request
