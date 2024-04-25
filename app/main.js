@@ -65,7 +65,7 @@ const server = net.createServer({keepAlive: true}, (socket) => {
           console.log(err);
         }
       } else {
-        socket.write("HTTP/1.1 400 Not Found\r\n\r\n");
+        socket.write("HTTP/1.1 404 Not Found\r\n\r\n");
       }
     }
     else {
