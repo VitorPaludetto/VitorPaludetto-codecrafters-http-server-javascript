@@ -29,7 +29,7 @@ const server = net.createServer((socket) => {
     if (path === "/") {
       socket.write("HTTP/1.1 200 OK\r\n\r\n");
     }
-    else if (path.substring(0, 5) === "/echo") {
+    else if (path.startsWith("/echo")) {
       const matchEchoRegex = /(\/echo\/)(.*)/
       const echoPath = path.match(matchEchoRegex)[2];
       socket.write(`HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Length: ${echoPath.length}\r\n\r\n${echoPath}\r\n`);
