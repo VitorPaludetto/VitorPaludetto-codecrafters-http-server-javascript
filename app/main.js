@@ -57,17 +57,14 @@ const server = net.createServer({keepAlive: true}, (socket) => {
       const fileName = path.match(matchFileNameRegex)[2];
       // Check if the file exists in directory, read it and write its
       // content to the body of the response
-      if (fs.existsSync(`${directory}/${fileName}`)) {
-        try {
-          const fileContent = fs.readFileSync(`${directory}/${fileName}`, "utf-8");
-          socket.write(`HTTP/1.1 200 OK\r\nContent-Type: application/octet-stream\r\nContent-Length: ${fileContent.length}\r\n\r\n${fileContent}\r\n`)
-        } catch (err) {
-          console.log(err);
-        }
-      } else {
+      try {
+        const fileContent = fs.readFileSync(`${directory}/${fileName}`, "utf-8");
+        socket.write(`HTTP/1.1 200 OK\r\nContent-Type: application/octet-stream\r\nContent-Length: ${fileContent.length}\r\n\r\n${fileContent}\r\n`)
+      } catch (err) {
+        console.log(err);
         socket.write("HTTP/1.1 404 Not Found\r\n\r\n");
       }
-    }
+      }
     else {
       socket.write("HTTP/1.1 404 Not Found\r\n\r\n");
     }
