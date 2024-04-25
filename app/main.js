@@ -25,8 +25,15 @@ const server = net.createServer((socket) => {
     const input = data.toString();
     const firstLine = input.split("\n")[0];
     const path = firstLine.split(" ")[1];
-    if (path === '/') {
-      socket.write("HTTP/1.1 200 OK\r\n\r\n");
+
+    const matchEchoRegex = /(\/echo\/)(.*)/
+    const echoPath = path.match(matchEchoRegex)[2];
+
+    console.log(echoPath);
+    console.log(echoPath.length);
+
+    if (path === "/" || path.substring(0, 5) === "/echo") {
+      socket.write(`HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Length: ${echoPath.length}\r\n\r\n${echoPath}\r\n`);
     } else {
       socket.write("HTTP/1.1 404 Not Found\r\n\r\n");
     }
