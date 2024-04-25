@@ -1,4 +1,16 @@
 const net = require("net");
+const fs = require("fs");
+
+// Get the arguments passed when executing the program
+// Check if the flag --directory was passed and then
+// define the directory that was passed as an argument of the flag
+const args = process.argv;
+let directory = undefined
+args.forEach((arg, index) => {
+  if (arg === "--directory" && args[index + 1].length > 0) {
+    directory = args[index + 1];
+  }
+});
 
 const server = net.createServer({keepAlive: true}, (socket) => {
   socket.on("close", () => {
@@ -39,6 +51,22 @@ const server = net.createServer({keepAlive: true}, (socket) => {
       const userAgentRegex = /(User-Agent: )(.*)/
       const userAgent = input.match(userAgentRegex)[2]
       socket.write(`HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Length: ${userAgent.length}\r\n\r\n${userAgent}\r\n`)
+    }
+    else if (path.startsWith("/files")) {
+      const matchFileNameRegex = /(\/files\/)(.*)/
+      const fileName = path.match(matchFileNameRegex)[2];
+      // Check if the file exists in directory, read it and write its
+      // content to the body of the response
+      if (fs.existsSync(`${directory}/${fileName}`)) {
+        try {
+          const fileContent = fs.readFileSync(`${directory}/${fileName}`, "utf-8");
+          socket.write(`HTTP/1.1 200 OK\r\nContent-Type: application/octet-stream\r\nContent-Length: ${fileContent.length}\r\n\r\n${fileContent}\r\n`)
+        } catch (err) {
+          console.log(err);
+        }
+      } else {
+        socket.write("HTTP/1.1 400 Not Found\r\n\r\n");
+      }
     }
     else {
       socket.write("HTTP/1.1 404 Not Found\r\n\r\n");
