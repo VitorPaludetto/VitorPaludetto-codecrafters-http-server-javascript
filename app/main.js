@@ -3,7 +3,7 @@ const fs = require("fs");
 
 // Get the arguments passed when executing the program
 // Check if the flag --directory was passed and then
-// define the directory that was passed as an argument of the flag
+// define its value as an argument of the flag
 const args = process.argv;
 let directory = undefined
 args.forEach((arg, index) => {
@@ -19,20 +19,21 @@ const server = net.createServer({keepAlive: true}, (socket) => {
 
   // Extract the Path from the HTTP request
   // If "/" respond with 200 OK, 
-  // If starts with "/echo", respond with the rest of the path as the body
+  // If starts with "/echo" respond with the rest of the path as the body
+  // If starts with "/user-agent" respond with the User-Agent header as the body of the response
+  // If starts with a GET request with "/files" as the path, read the file in the directory and respond with its content as the body of the response
+  // If starts with a POST request with "/files" as the path, read the body of the request and write its content in a file with the name passed in the path and place it in the directory passed as an argument
   // else respond with 404 Not Found
 
-    // Example of incoming HTTP request (404 Not Found)
-    // GET /index.html HTTP/1.1
-    // Host: localhost:4221
-    // User-Agent: curl/7.64.1
-    
-    // Another example (200 OK)
-    // GET / HTTP/1.1
-    // Host: localhost:4221
-    // User-Agent: curl/7.64.1
-
-  // console.log(socket.address());
+  // Example of incoming HTTP request (404 Not Found)
+  // GET /index.html HTTP/1.1
+  // Host: localhost:4221
+  // User-Agent: curl/7.64.1
+  
+  // Another example (200 OK)
+  // GET / HTTP/1.1
+  // Host: localhost:4221
+  // User-Agent: curl/7.64.1
 
   socket.on("data", (data) => {
     const input = data.toString();
@@ -61,7 +62,7 @@ const server = net.createServer({keepAlive: true}, (socket) => {
         const fileContent = fs.readFileSync(`${directory}/${fileName}`, "utf-8");
         socket.write(`HTTP/1.1 200 OK\r\nContent-Type: application/octet-stream\r\nContent-Length: ${fileContent.length}\r\n\r\n${fileContent}\r\n`)
       } catch (err) {
-        console.log(err);
+        console.error(err);
         socket.write("HTTP/1.1 404 Not Found\r\nContent-Type: application/octet-stream\r\nContent-Length: 0\r\n\r\n");
       }
     }
@@ -73,7 +74,7 @@ const server = net.createServer({keepAlive: true}, (socket) => {
         fs.writeFileSync(`${directory}/${fileName}`, fileContent);
         socket.write("HTTP/1.1 201 Created\r\n\r\n");
       } catch (err) {
-        console.log(err);
+        console.error(err);
         socket.write("HTTP/1.1 404 Not Found\r\nContent-Type: application/octet-stream\r\nContent-Length: 0\r\n\r\n");
       }
     }
